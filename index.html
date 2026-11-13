@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#14161c" media="(prefers-color-scheme: dark)" />
+  <title>NoteSketch: lectures into visual study notes</title>
+  <meta name="description" content="Upload a lecture PDF and get example-first study notes with timeline tables, diagrams and a quiz." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📒</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="logo">📒</span> NoteSketch</div>
+    <nav>
+      <button id="historyBtn" class="ghost" type="button">Recent</button>
+      <button id="themeBtn" class="ghost icon" type="button" aria-label="Switch theme">🌙</button>
+      <a class="ghost" href="https://github.com/Nethra-R368/h" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="inputView" class="view">
+      <div class="hero">
+        <h1>Lectures in. <span class="hl">Examples, tables &amp; diagrams</span> out.</h1>
+        <p>For students who learn by seeing, not by reading walls of text.</p>
+      </div>
+
+      <div class="panel">
+        <label id="dropZone" class="drop" for="fileInput">
+          <input id="fileInput" type="file" accept="application/pdf,.pdf,.txt,.md" hidden />
+          <span class="drop-icon">⬆️</span>
+          <strong>Drop a lecture PDF here</strong>
+          <span class="muted">or click to choose (PDF, TXT, MD)</span>
+          <span id="fileName" class="file-name"></span>
+        </label>
+
+        <div class="or"><span>or paste text</span></div>
+        <textarea id="lectureText" rows="7" placeholder="Paste lecture notes, slides text or a textbook section…"></textarea>
+        <div class="row small muted"><span id="charCount">0 characters</span></div>
+
+        <div class="options">
+          <label>Detail
+            <select id="detail">
+              <option value="quick">Quick revision</option>
+              <option value="standard" selected>Standard</option>
+              <option value="deep">Deep dive</option>
+            </select>
+          </label>
+          <label>I am
+            <select id="focus">
+              <option value="exam" selected>revising for an exam</option>
+              <option value="first">learning this for the first time</option>
+            </select>
+          </label>
+          <label>Notes language
+            <select id="language">
+              <option value="en" selected>English</option>
+              <option value="ta">தமிழ் · Tamil</option>
+              <option value="hi">हिन्दी · Hindi</option>
+              <option value="te">తెలుగు · Telugu</option>
+              <option value="ml">മലയാളം · Malayalam</option>
+            </select>
+          </label>
+        </div>
+
+        <details class="settings" id="settings">
+          <summary>🔑 Gemini API key <span class="muted small">(free from Google AI Studio)</span></summary>
+          <div class="settings-body">
+            <input id="apiKey" type="password" placeholder="Paste your Gemini API key" autocomplete="off" />
+            <label class="check"><input id="rememberKey" type="checkbox" /> Remember on this device</label>
+            <label>Model <input id="model" type="text" value="gemini-2.5-flash" /></label>
+            <p class="small muted">Get a key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Your lecture goes straight from your browser to Google; NoteSketch has no server.</p>
+          </div>
+        </details>
+
+        <div class="actions">
+          <button id="generateBtn" class="primary" type="button">✨ Make my notes</button>
+          <button id="sampleBtn" class="secondary" type="button">See an example (no key needed)</button>
+        </div>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="how">
+        <div><b>1</b> Upload a lecture</div>
+        <div><b>2</b> AI rewrites it as worked examples</div>
+        <div><b>3</b> Timeline tables + diagrams</div>
+        <div><b>4</b> Ask doubts, flashcards, export</div>
+      </div>
+    </section>
+
+    <section id="notesView" class="view hidden">
+      <div class="toolbar">
+        <button id="backBtn" class="ghost" type="button">← New notes</button>
+        <div class="spacer"></div>
+        <div id="notesTools" class="tools">
+          <button id="cardsBtn" class="primary" type="button">🃏 Flashcards</button>
+          <button id="mdBtn" class="secondary" type="button">⬇ Markdown</button>
+          <button id="printBtn" class="secondary" type="button">🖨 PDF</button>
+        </div>
+      </div>
+      <article id="notes"></article>
+    </section>
+
+    <section id="cardsView" class="view hidden">
+      <div class="toolbar">
+        <button id="fcBackBtn" class="ghost" type="button">← Back to notes</button>
+        <div class="spacer"></div>
+        <button id="fcResetBtn" class="secondary" type="button">↺ Reset</button>
+      </div>
+      <div class="fc-head">
+        <div class="label">Flashcards</div>
+        <h1 id="fcTitle"></h1>
+        <div class="fc-stats" id="fcStats"></div>
+        <div class="bar" role="progressbar" aria-label="Cards mastered" aria-valuemin="0"><span id="fcBar"></span></div>
+      </div>
+      <div id="fcStage"></div>
+      <p class="small muted center">Keys: <kbd>Space</kbd> flip · <kbd>1</kbd> again · <kbd>2</kbd> got it. Progress is saved on this device.</p>
+    </section>
+  </main>
+
+  <dialog id="historyDialog">
+    <h3>Recent notes</h3>
+    <ul id="historyList"></ul>
+    <form method="dialog"><button class="secondary">Close</button></form>
+  </dialog>
+
+  <footer class="muted small">NoteSketch · runs in your browser with Google Gemini · AI notes can contain mistakes, check against your lecture.</footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
