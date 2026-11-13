@@ -7,7 +7,7 @@
 | 1 | `readPdf` (app.js) | PDF file → plain text (pdf.js, page by page) |
 | 2 | `trimInput` (core.js) | messy text → cleaned, cut at 60,000 chars |
 | 3 | `buildPrompt` + `languageRule` (core.js) | text + options (detail, focus, language) → prompt with rules + JSON shape |
-| 4 | `askGemini` (app.js) | prompt → reply text (JSON mode; retries a 5xx once, falls back to `gemini-flash-latest` on 404) |
+| 4 | `askGemini` (app.js) | prompt → reply text (JSON mode; retries a busy model once, then tries other current Flash models; same on 404) |
 | 5 | `extractJson` (core.js) | reply → JS object (strips ``` fences) |
 | 6 | `normalizeNotes` (core.js) | any object → safe shape (drops/repairs bad parts) |
 | 7 | `showNotes` (app.js) | notes → HTML cards |

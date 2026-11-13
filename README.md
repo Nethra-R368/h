@@ -40,7 +40,7 @@ python -m http.server 8000      # then open http://localhost:8000
 ```
 
 Get a free Gemini API key at https://aistudio.google.com/apikey and paste it under "🔑 Gemini API key".
-The default model is `gemini-2.5-flash`; if Google retires that name, NoteSketch automatically retries with `gemini-flash-latest`.
+The default model is `gemini-3.8-flash`. If it is busy or retired, NoteSketch automatically tries other current Flash models.
 
 ## How it works
 

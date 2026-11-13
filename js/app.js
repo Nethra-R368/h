@@ -8,8 +8,8 @@ import { SAMPLE_LECTURE, SAMPLE_NOTES } from './sample.js';
 const PDFJS_URL = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.2.108/build/pdf.min.mjs';
 const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.2.108/build/pdf.worker.min.mjs';
 const MERMAID_URL = 'https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.esm.min.mjs';
-const DEFAULT_MODEL = 'gemini-2.5-flash';
-const FALLBACK_MODELS = ['gemini-flash-latest', 'gemini-2.5-flash'];
+const DEFAULT_MODEL = 'gemini-3.8-flash';
+const FALLBACK_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
 const KEY_STORE = 'notesketch.key';
 const HISTORY_STORE = 'notesketch.history';
 const LANG_STORE = 'notesketch.lang';
@@ -140,6 +140,7 @@ async function callGemini(prompt, key, model, signal) {
 async function askGemini(prompt, key, model, signal) {
   const models = [model, ...FALLBACK_MODELS.filter((m) => m !== model)];
   let lastMsg = '';
+  let busy = false;
   for (const m of models) {
     for (let attempt = 0; attempt < 2; attempt++) {
       const { res, data } = await callGemini(prompt, key, m, signal);
@@ -161,10 +162,11 @@ async function askGemini(prompt, key, model, signal) {
       }
       if (res.status === 429) throw new Error('Free Gemini quota used up for now. Wait a minute and try again.');
       if (res.status === 404) break; // model name not available: try the next one
-      if (res.status >= 500 && attempt === 0) { await sleep(1500); continue; }
+      if (res.status >= 500) { busy = true; if (attempt === 0) { await sleep(1500); continue; } break; } // still busy: try the next model
       throw new Error(`Gemini error: ${lastMsg}`);
     }
   }
+  if (busy) throw new Error('Gemini is very busy right now. Wait a minute and try again.');
   throw new Error(`Model "${model}" was not found. Try another model name in settings. (${lastMsg})`);
 }
 

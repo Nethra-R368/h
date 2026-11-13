@@ -6,7 +6,7 @@ Use the same project page for **SLAY HACKS** (AI focus), **Arbiter Hacks** (Gene
 
 - Live demo: https://nethra-r368.github.io/h/
 - Code: https://github.com/Nethra-R368/h
-- AI used: **Google Gemini** (`gemini-2.5-flash`, JSON mode), called from the browser
+- AI used: **Google Gemini** (`gemini-3.8-flash`, JSON mode), called from the browser
 
 ## Tagline
 Lectures in. Examples, tables and diagrams out, in your own language.
@@ -30,7 +30,7 @@ I struggle to read long notes. What makes a topic click for me is a worked examp
 - **Google Gemini** in JSON mode with strict prompts: example-first, at most 25 words per field, tables for anything that changes over time, Mermaid for flows, and a language rule that keeps technical terms in English.
 - A **repair layer** (`normalizeNotes`, `normalizeDoubt`) fixes whatever the AI returns: missing fields, broken tables, code fences, invalid diagrams, out-of-range quiz answers. Bad diagrams fall back to a readable outline.
 - All logic that can be pure lives in `js/core.js` (prompts, JSON repair, languages, flashcard scheduling, Markdown export) and is covered by **15 unit tests** (`node --test`).
-- Robust API calls: one retry when Gemini is overloaded (5xx), automatic fallback to `gemini-flash-latest` if the model name is retired, and clear messages for a bad key, used-up quota, blocked or cut-off replies.
+- Robust API calls: one retry when Gemini is overloaded (5xx), automatic fallback to other current Flash models when one is busy or retired, and clear messages for a bad key, used-up quota, blocked or cut-off replies.
 
 ## How AI is used (meaningful use)
 Gemini does the core work: it reads an unstructured lecture and produces structured teaching material (examples with real values, tables, diagrams, quiz) in the student's language. It is also an on-demand tutor for doubts, grounded in the section the student is reading. The app never shows raw AI text: everything goes through a typed JSON shape and a repair layer first.
